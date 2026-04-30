@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
@@ -88,13 +88,13 @@ def exchange_refresh(payload: RefreshRequest, request: Request, db: Session = De
     return _token_response(access, new_refresh)
 
 
-@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT, response_class=Response)
 def logout(
     request: Request,
     db: Session = Depends(get_db),
     current: User | None = Depends(get_current_user_optional),
     payload: LogoutRequest = Body(default_factory=LogoutRequest),
-) -> None:
+) -> Response:
     if payload.revoke_all_sessions:
         if current is None:
             raise HTTPException(
@@ -104,13 +104,13 @@ def logout(
         revoke_all_for_user(db, user_id=current.id)
         write_audit(db, action="auth.logout_all", actor_user_id=current.id, request=request)
         db.commit()
-        return
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     if payload.refresh_token:
         owner_id = revoke_refresh_by_plain(db, plain=payload.refresh_token)
         write_audit(db, action="auth.logout", actor_user_id=owner_id or (current.id if current else None), request=request)
         db.commit()
-        return
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
