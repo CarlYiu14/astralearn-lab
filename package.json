@@ -1,0 +1,25 @@
+{
+  "name": "astralearn-os",
+  "private": true,
+  "description": "Monorepo scripts (API tests, schema validation, golden QA)",
+  "scripts": {
+    "test:api": "cd apps/api && pytest -q",
+    "test:api:unit": "cd apps/api && pytest -q tests/unit",
+    "validate:schemas": "python scripts/validate_schemas.py",
+    "openapi:export": "python scripts/export_openapi.py",
+    "routes:list": "python scripts/list_routes.py",
+    "contracts:bundle": "python scripts/export_contract_bundle.py",
+    "hobby:session": "python scripts/hobby_session.py",
+    "hobby:material": "python scripts/make_hobby_material.py",
+    "hobby:kits": "python scripts/list_hobby_kits.py",
+    "hobby:kits:validate": "python scripts/validate_hobby_kits.py",
+    "hobby:kit:new": "python scripts/new_hobby_kit.py",
+    "hobby:kit": "python scripts/material_from_kit.py",
+    "hobby:quickstart": "python scripts/hobby_quickstart.py --random",
+    "hobby:drill": "python scripts/kit_drill.py",
+    "hobby:golden": "python scripts/kit_to_golden_qa.py",
+    "hobby:golden:pack": "python scripts/kit_pack_golden.py",
+    "sdk:ts:check": "cd packages/sdk-ts && npm run check",
+    "eval:golden": "python scripts/run_golden_qa.py"
+  }
+}

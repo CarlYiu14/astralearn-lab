@@ -1,0 +1,17 @@
+{
+  "title": "Prompt Design Basics Kit",
+  "level": "medium",
+  "topic": "Reliable instruction design for structured outputs",
+  "key_points": [
+    "State output format constraints explicitly.",
+    "Separate task goal from style preference.",
+    "Provide one concrete positive example.",
+    "Add fallback behavior for low-confidence cases."
+  ],
+  "practice_prompts": [
+    "Rewrite a vague prompt into a specific JSON-output prompt.",
+    "Describe one failure mode caused by ambiguous constraints.",
+    "Create a short rubric for answer grounding quality.",
+    "Propose one safe fallback when evidence is insufficient."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Quickstart AI Study Kit",
+  "level": "easy",
+  "topic": "Learning with retrieval and adaptive quizzes",
+  "key_points": [
+    "Ground answers in cited source chunks.",
+    "Keep lesson units short and focused.",
+    "Use mistakes to adapt next-question difficulty.",
+    "Prioritize explainability over flashy complexity."
+  ],
+  "practice_prompts": [
+    "Explain why citations improve trust in AI answers.",
+    "Design a 5-minute lesson from one source paragraph.",
+    "Propose one quiz adaptation rule based on learner confidence.",
+    "Describe one failure mode of retrieval QA and how to mitigate it."
+  ]
+}

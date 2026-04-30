@@ -1,0 +1,101 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: astralearn-postgres
+    environment:
+      POSTGRES_DB: astralearn
+      POSTGRES_USER: astralearn
+      POSTGRES_PASSWORD: astralearn
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U astralearn -d astralearn"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: astralearn-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: python:3.12-slim
+    container_name: astralearn-api
+    working_dir: /app
+    environment:
+      DATABASE_URL: postgresql+psycopg://astralearn:astralearn@postgres:5432/astralearn
+      STORAGE_DIR: /data/storage
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-gpt-4o-mini}
+      GRAPH_MAX_CHUNKS: ${GRAPH_MAX_CHUNKS:-48}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
+    volumes:
+      - ../../apps/api:/app
+      - api_storage:/data/storage
+    command: >
+      sh -c "pip install --no-cache-dir -r requirements.txt &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    image: node:20-alpine
+    container_name: astralearn-web
+    working_dir: /app
+    volumes:
+      - ../../apps/web:/app
+    command: >
+      sh -c "if [ ! -f package.json ]; then echo 'apps/web not initialized'; sleep 99999; fi &&
+             npm install &&
+             npm run dev"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  worker:
+    image: python:3.12-slim
+    container_name: astralearn-worker
+    working_dir: /worker
+    environment:
+      DATABASE_URL: postgresql+psycopg://astralearn:astralearn@postgres:5432/astralearn
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-gpt-4o-mini}
+      STORAGE_DIR: /data/storage
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
+    volumes:
+      - ../../apps/worker:/worker
+      - ../../apps/api:/api
+      - api_storage:/data/storage
+    command: >
+      sh -c "pip install --no-cache-dir -r /api/requirements.txt &&
+             PYTHONPATH=/api python /worker/run.py"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  api_storage:

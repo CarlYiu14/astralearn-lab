@@ -1,0 +1,5 @@
+# Lines are JSON (ignore # comments when processing — the runner skips # lines only at line start).
+# Use a course that already has processed document_chunks (see seed + upload demo).
+{"question": "What topics or themes appear in the indexed course materials?", "top_k": 6}
+{"question": "List one concrete fact you can infer only from the retrieved excerpts.", "top_k": 8}
+{"question": "If the materials are insufficient to answer, say so explicitly.", "top_k": 4}

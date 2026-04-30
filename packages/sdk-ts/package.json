@@ -1,0 +1,21 @@
+{
+  "name": "@astralearn/sdk-ts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TypeScript SDK for AstraLearn API generated from OpenAPI types",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "generate:types": "openapi-typescript ../../packages/openapi/astralearn.openapi.json -o src/generated/openapi.ts",
+    "build": "tsc -p tsconfig.json",
+    "check": "npm run generate:types && npm run build"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.10.1",
+    "typescript": "^5.9.3"
+  }
+}

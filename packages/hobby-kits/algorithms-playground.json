@@ -1,0 +1,17 @@
+{
+  "title": "Algorithms Playground Kit",
+  "level": "hard",
+  "topic": "Thinking in steps, constraints, and trade-offs",
+  "key_points": [
+    "Clarify input/output before choosing an approach.",
+    "Compare brute force and optimized methods explicitly.",
+    "Use small examples to test edge cases first.",
+    "Explain complexity in plain language."
+  ],
+  "practice_prompts": [
+    "Explain when a hash map helps reduce time complexity.",
+    "Give one edge case for binary search implementations.",
+    "Draft a mini lesson objective for greedy algorithms.",
+    "Describe one trade-off between readability and micro-optimization."
+  ]
+}

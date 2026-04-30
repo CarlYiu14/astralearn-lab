@@ -1,0 +1,17 @@
+{
+  "title": "Data Science Basics Kit",
+  "level": "medium",
+  "topic": "From raw data to interpretable decisions",
+  "key_points": [
+    "Start with problem framing before model selection.",
+    "Use simple baseline metrics before advanced techniques.",
+    "Document assumptions and data quality risks explicitly.",
+    "Prefer interpretable outputs for educational settings."
+  ],
+  "practice_prompts": [
+    "Describe one risk of training on biased data.",
+    "List two baseline metrics for binary classification.",
+    "Draft a mini lesson objective for confusion matrix interpretation.",
+    "Explain when a simpler model can be better than a complex one."
+  ]
+}

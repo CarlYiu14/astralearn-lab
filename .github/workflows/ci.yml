@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql+psycopg://test:test@127.0.0.1:5432/no_such_db
+      JWT_SECRET: test-jwt-secret-key-at-least-32-characters-!!
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install API dependencies (no Postgres service)
+        working-directory: apps/api
+        run: pip install -r requirements.txt -r requirements-dev.txt
+      - name: Validate shared JSON schemas
+        run: python scripts/validate_schemas.py
+      - name: Contract unit tests
+        working-directory: apps/api
+        env:
+          PYTHONPATH: .
+        run: pytest -q tests/unit
+      - name: Export OpenAPI
+        working-directory: apps/api
+        env:
+          PYTHONPATH: .
+        run: python ../../scripts/export_openapi.py
+      - name: Setup Node for SDK checks
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: packages/sdk-ts/package-lock.json
+      - name: Install SDK dependencies
+        working-directory: packages/sdk-ts
+        run: npm install
+      - name: Verify TypeScript SDK against OpenAPI
+        working-directory: packages/sdk-ts
+        run: npm run check
+      - name: Route inventory (log)
+        working-directory: apps/api
+        env:
+          PYTHONPATH: .
+        run: python ../../scripts/list_routes.py
+      - name: Upload OpenAPI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: astralearn-openapi
+          path: packages/openapi/astralearn.openapi.json
+      - name: Build contract bundle
+        run: python scripts/export_contract_bundle.py
+      - name: Upload contract bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: astralearn-contract-bundle
+          path: artifacts/contracts/latest
+
+  api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: astralearn_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d astralearn_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgresql+psycopg://test:test@127.0.0.1:5432/astralearn_test
+      JWT_SECRET: test-jwt-secret-key-at-least-32-characters-!!
+      REFRESH_TOKEN_EXPIRE_DAYS: "7"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install API + dev dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
+      - name: Validate FastAPI import
+        run: python -c "from app.main import app; print(app.title)"
+      - name: Run pytest (integration)
+        run: pytest -q
+      - name: Validate shared JSON schemas
+        run: python ../../scripts/validate_schemas.py
+
+  web-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/web/package.json
+      - name: Install dependencies
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Build app
+        run: npm run build

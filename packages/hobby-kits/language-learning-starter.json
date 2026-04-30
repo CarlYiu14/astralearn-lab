@@ -1,0 +1,17 @@
+{
+  "title": "Language Learning Starter Kit",
+  "level": "easy",
+  "topic": "Vocabulary building with explainable QA",
+  "key_points": [
+    "Use short context snippets for each new word.",
+    "Pair each term with one example sentence.",
+    "Ask learners to explain meaning in their own words.",
+    "Use quiz feedback to prioritize weak terms."
+  ],
+  "practice_prompts": [
+    "Define retrieval grounding in one sentence.",
+    "Write a simple example sentence for a new technical word.",
+    "Create one multiple-choice question with one clearly correct option.",
+    "Explain how to revisit missed words without overwhelming the learner."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://astralearn.local/schemas/document-process-response.schema.json",
+  "title": "DocumentProcessResponse",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "course_id", "status", "chunk_count", "char_count"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "course_id": { "type": "string", "format": "uuid" },
+    "status": { "type": "string", "minLength": 1 },
+    "chunk_count": { "type": "integer", "minimum": 0 },
+    "char_count": { "type": "integer", "minimum": 0 }
+  }
+}
